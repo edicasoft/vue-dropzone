@@ -8,7 +8,7 @@ export default {
     return new Promise((resolve, reject) => {
       var fd = new FormData();
       let request = new XMLHttpRequest(),
-          signingURL = (typeof config.signingURL === "function") ?  config.signingURL(file) : config.signingURL;
+        signingURL = (typeof config.signingURL === "function") ? config.signingURL(file) : config.signingURL;
       request.open("POST", signingURL);
       request.onload = function () {
         if (request.status == 200) {
@@ -39,12 +39,17 @@ export default {
     var handler = (is_sending_s3) ? this.setResponseHandler : this.sendS3Handler;
 
     return this.getSignedURL(file, config)
-      .then((response) => {return handler(response, file)})
-      .catch((error) => { return error; });
+      .then((response) => {
+        return handler(response, file)
+      })
+      .catch((error) => {
+        return {success: false, message: error}
+      });
   },
   setResponseHandler(response, file) {
     file.s3Signature = response.signature;
     file.s3Url = response.postEndpoint;
+    return {success: true};
   },
   sendS3Handler(response, file) {
     let fd = new FormData(),
